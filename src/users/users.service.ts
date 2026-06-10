@@ -1,4 +1,9 @@
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { AuthService } from "src/auth/auth.service";
+
+@Injectable()
 export class UsersService {
+  constructor(@Inject(forwardRef(()=>AuthService)) private readonly authService: AuthService){}
   users: {
     id: number;
     name: string;
@@ -6,14 +11,16 @@ export class UsersService {
     gender: string;
     email: string;
     isMarried: boolean;
+    password:string
   }[] = [
     {
       id: 1,
       name: 'Abhishek',
-      email: 'abho@gmail.com',
+      email: 'abhi@gmail.com',
       age: 25,
       gender: 'Male',
       isMarried: false,
+      password:'test@abc'
     },
     {
       id: 2,
@@ -22,11 +29,15 @@ export class UsersService {
       email: 'abho@gmail.com',
       gender: 'Female',
       isMarried: true,
+      password:'test@abc'
     },
   ];
 
   getallUsers() {
-    return this.users;
+    if(this.authService.isAuthenticated){
+      return this.users;
+    }
+    return 'user not authenticated'
   }
 
   getUserById(id: number) {
@@ -40,6 +51,7 @@ export class UsersService {
     gender: string;
     email: string;
     isMarried: boolean;
+    password:string
   }) {
     this.users.push(user);
   }
