@@ -11,11 +11,7 @@ export class TweetService {
     ]
 
     getTweets(userId: number){
-        const user = this.userService.getUserById(userId)
-        const tweets =  this.tweets.filter((x => x.userId === userId))
-        const response =  tweets.map(x => {return {
-            name:user?.name, tweet: x.text, id: x.userId, date: x.date
-        }})
-        return response
+        
+        return 'response'
     }
 }
