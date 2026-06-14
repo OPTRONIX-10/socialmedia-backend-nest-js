@@ -7,6 +7,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { CreateProfileDto } from 'src/profile/dtos/create-profile.dtos';
 
 export class CreateUserDto {
 
@@ -25,4 +26,7 @@ export class CreateUserDto {
   @IsStrongPassword()
   @MaxLength(100)
   password!: string;
+
+  @IsOptional()
+  profile?: CreateProfileDto;
 }

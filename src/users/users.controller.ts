@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   DefaultValuePipe,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -33,6 +34,11 @@ export class UsersController {
     console.log(user)
     this.users.createNewUser(user);
     return 'new user created';
+  }
+
+  @Delete(':id')
+  deleteUser(@Param('id', ParseIntPipe) id:number){
+    this.users.deleteUser(id)
   }
 
  
