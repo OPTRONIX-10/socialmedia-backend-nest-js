@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Hashtag } from './hashtag.entity';
 import { CreateHashtagDto } from './dtos/create-hashtag.dto';
+import { UpdateTweetDto } from 'src/tweet/dtos/update-tweet.dto';
 
 @Injectable()
 export class HashtagService {
@@ -24,4 +25,15 @@ export class HashtagService {
             {where:{id:In(hashtags)}}
         )
     }
+
+    async onDelete(id: number){
+        //permenant delete
+        //  await this.hashTagRepo.delete(id)
+
+        //soft delete
+        await this.hashTagRepo.softDelete(id)
+         return {delete:true,id}
+    }
+
+
 }

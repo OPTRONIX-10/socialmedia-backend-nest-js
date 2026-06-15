@@ -5,6 +5,7 @@ import { Tweet } from './tweet.entity';
 import { Repository } from 'typeorm';
 import { CreateTweetDto } from './dtos/create-tweet.dto';
 import { HashtagService } from 'src/hashtag/hashtag.service';
+import { UpdateTweetDto } from './dtos/update-tweet.dto';
 
 @Injectable()
 export class TweetService {
@@ -40,5 +41,27 @@ export class TweetService {
         })
 
         return await this.tweetRepo.save(tweet)
+    }
+
+    async updateTweet(updateTweetDto: UpdateTweetDto){
+        const hashTags =await this.hashtagService.findHashtags(updateTweetDto.hashtags!)
+
+        const tweet = await this.tweetRepo.findOneBy({
+            id:updateTweetDto.id
+        })
+        if(tweet){
+            tweet.text = updateTweetDto.text ?? tweet?.text
+            tweet.image = updateTweetDto.image ?? tweet.image
+            tweet.hashtags = hashTags
+            return await this.tweetRepo.save(tweet)
+        }
+        return 'not found'
+    }
+
+    async deleteTweet(id:number){
+        await this.tweetRepo.delete({
+            id
+        })
+        return {delete: true, id}
     }
 }
