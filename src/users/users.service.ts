@@ -61,4 +61,8 @@ export class UsersService {
 
     return {deleted:true}
   }
+
+  async findUserById(id: number){
+    return await this.userRepo.findOneBy({id})
+  }
 }

@@ -1,17 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
+import { Tweet } from './tweet.entity';
+import { Repository } from 'typeorm';
+import { CreateTweetDto } from './dtos/create-tweet.dto';
 
 @Injectable()
 export class TweetService {
-    constructor(private readonly userService: UsersService){}
-    tweets: {text:string, date: Date, userId: number}[] = [
-        {text:'poda patti', date: new Date('2024-11-12'), userId: 1},
-        {text: 'poda tehendi', date: new Date('2025-10-13'), userId: 2},
-        {text: 'poda potta', date: new Date('2023-11-14'), userId: 3}
-    ]
+    constructor(private readonly userService: UsersService,
+        @InjectRepository(Tweet)
+        private readonly tweetRepo: Repository<Tweet>
+    ){}
+   
 
-    getTweets(userId: number){
+    async getTweets(userId: number){
         
-        return 'response'
+        return await this.tweetRepo.find({
+            where:{user:{id:userId}},
+            relations:{user:true}
+        })
+    }
+
+    async createTweet(createTweetDto: CreateTweetDto){
+        const  user = await this.userService.findUserById(createTweetDto.userId)
+
+        if (!user) {
+            throw new NotFoundException('User not found')
+        }
+
+        const tweet =   this.tweetRepo.create({
+            ...createTweetDto,
+            user,
+        })
+
+        return await this.tweetRepo.save(tweet)
     }
 }
