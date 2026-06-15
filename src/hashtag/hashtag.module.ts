@@ -7,6 +7,7 @@ import { Hashtag } from './hashtag.entity';
 @Module({
   providers: [HashtagService],
   controllers: [HashtagController],
-  imports:[TypeOrmModule.forFeature([Hashtag])]
+  imports:[TypeOrmModule.forFeature([Hashtag])],
+  exports:[HashtagService]
 })
 export class HashtagModule {}
