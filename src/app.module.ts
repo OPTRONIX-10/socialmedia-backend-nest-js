@@ -8,20 +8,38 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/user.entity';
 import { ProfileModule } from './profile/profile.module';
 import { HashtagModule } from './hashtag/hashtag.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { appConfig } from './config/app.config';
+
+const ENV = process.env.NODE_ENV
 
 @Module({
-  imports: [UsersModule, TweetModule, AuthModule,TypeOrmModule.forRootAsync({
-   useFactory: ()=>({
-     type:'postgres',
-    autoLoadEntities:true,
-    synchronize:true,
-    host:'localhost',
-    port:5432,
-    username:'postgres',
-    password:'ronaldomessi',
-    database:'nestjs-socialmedia-backend-database'
-   })
-  }), ProfileModule, HashtagModule],
+  imports: [
+    UsersModule,
+    TweetModule,
+    AuthModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: !ENV? '.env' : `.env.${ENV.trim()}`,
+      load:[appConfig] // to use custom config from conifg file
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        autoLoadEntities: configService.get('DB_AUTO_LOAD'),// onfigService.get('database.autoLoadEntities') - Using custom app config
+        synchronize: configService.get('DB_SYNC'),
+        host: configService.get('DB_HOST'),
+        port: +configService.get('DB_PORT'),
+        username: configService.get('DB_USERNAME'),
+        password: configService.get('DB_PASSWORD'),
+        database: configService.get('DB_NAME'),
+      }),
+    }),
+    ProfileModule,
+    HashtagModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
