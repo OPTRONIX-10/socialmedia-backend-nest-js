@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateTweetDto } from './dtos/create-tweet.dto';
 import { HashtagService } from 'src/hashtag/hashtag.service';
 import { UpdateTweetDto } from './dtos/update-tweet.dto';
+import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
 
 @Injectable()
 export class TweetService {
@@ -16,7 +17,7 @@ export class TweetService {
     ){}
    
 
-    async getTweets(userId: number){
+    async getTweets(userId: number, paginationQueryDto: PaginationQueryDto){
 
         const user = await this.userService.findUserById(userId)
         if(!user){
@@ -25,7 +26,9 @@ export class TweetService {
         
         return await this.tweetRepo.find({
             where:{user:{id:userId}},
-            relations:{user:true}
+            relations:{user:true},
+            skip: (paginationQueryDto.page -1) * paginationQueryDto.limit,
+            take:paginationQueryDto.limit
         })
     }
 
