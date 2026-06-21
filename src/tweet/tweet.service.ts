@@ -7,69 +7,72 @@ import { CreateTweetDto } from './dtos/create-tweet.dto';
 import { HashtagService } from 'src/hashtag/hashtag.service';
 import { UpdateTweetDto } from './dtos/update-tweet.dto';
 import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
+import { PaginationProvider } from 'src/common/pagination/pagination.provider';
 
 @Injectable()
 export class TweetService {
-    constructor(private readonly userService: UsersService,
-        @InjectRepository(Tweet)
-        private readonly tweetRepo: Repository<Tweet>,
-        private readonly hashtagService: HashtagService
-    ){}
-   
+  constructor(
+    private readonly userService: UsersService,
+    @InjectRepository(Tweet)
+    private readonly tweetRepo: Repository<Tweet>,
+    private readonly hashtagService: HashtagService,
+    private readonly paginationProvider: PaginationProvider,
+  ) {}
 
-    async getTweets(userId: number, paginationQueryDto: PaginationQueryDto){
-
-        const user = await this.userService.findUserById(userId)
-        if(!user){
-            throw new NotFoundException(`User with this ${userId} not found`)
-        }
-        
-        return await this.tweetRepo.find({
-            where:{user:{id:userId}},
-            relations:{user:true},
-            skip: (paginationQueryDto.page -1) * paginationQueryDto.limit,
-            take:paginationQueryDto.limit
-        })
+  async getTweets(userId: number, paginationQueryDto: PaginationQueryDto) {
+    const user = await this.userService.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException(`User with this ${userId} not found`);
     }
 
-    async createTweet(createTweetDto: CreateTweetDto){
-        const  user = await this.userService.findUserById(createTweetDto.userId)
+    return await this.paginationProvider.paginateQuery(
+      paginationQueryDto,
+      this.tweetRepo,
+      { user: { id: userId } },
+    );
+  }
 
-        if (!user) {
-            throw new NotFoundException('User not found')
-        }
+  async createTweet(createTweetDto: CreateTweetDto) {
+    const user = await this.userService.findUserById(createTweetDto.userId);
 
-        const hashtags =await  this.hashtagService.findHashtags(createTweetDto.hashtags!)
-
-        const tweet =   this.tweetRepo.create({
-            ...createTweetDto,
-            user,
-            hashtags
-
-        })
-
-        return await this.tweetRepo.save(tweet)
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
-    async updateTweet(updateTweetDto: UpdateTweetDto){
-        const hashTags =await this.hashtagService.findHashtags(updateTweetDto.hashtags!)
+    const hashtags = await this.hashtagService.findHashtags(
+      createTweetDto.hashtags!,
+    );
 
-        const tweet = await this.tweetRepo.findOneBy({
-            id:updateTweetDto.id
-        })
-        if(tweet){
-            tweet.text = updateTweetDto.text ?? tweet?.text
-            tweet.image = updateTweetDto.image ?? tweet.image
-            tweet.hashtags = hashTags
-            return await this.tweetRepo.save(tweet)
-        }
-        return 'not found'
-    }
+    const tweet = this.tweetRepo.create({
+      ...createTweetDto,
+      user,
+      hashtags,
+    });
 
-    async deleteTweet(id:number){
-        await this.tweetRepo.delete({
-            id
-        })
-        return {delete: true, id}
+    return await this.tweetRepo.save(tweet);
+  }
+
+  async updateTweet(updateTweetDto: UpdateTweetDto) {
+    const hashTags = await this.hashtagService.findHashtags(
+      updateTweetDto.hashtags!,
+    );
+
+    const tweet = await this.tweetRepo.findOneBy({
+      id: updateTweetDto.id,
+    });
+    if (tweet) {
+      tweet.text = updateTweetDto.text ?? tweet?.text;
+      tweet.image = updateTweetDto.image ?? tweet.image;
+      tweet.hashtags = hashTags;
+      return await this.tweetRepo.save(tweet);
     }
+    return 'not found';
+  }
+
+  async deleteTweet(id: number) {
+    await this.tweetRepo.delete({
+      id,
+    });
+    return { delete: true, id };
+  }
 }

@@ -10,7 +10,7 @@ import { Profile } from 'src/profile/profile.entity';
   controllers: [UsersController],
   providers:[UsersService],
   exports:[UsersService],
-  imports: [TypeOrmModule.forFeature([User, Profile])]
+  imports: [TypeOrmModule.forFeature([User, Profile]), forwardRef(()=> AuthModule)]
 })
 export class UsersModule {
   

@@ -33,13 +33,13 @@ export class UsersController {
   }
 
 
-  @Post()
-  postUsers(@Body() user: CreateUserDto) {
+  // @Post()
+  // postUsers(@Body() user: CreateUserDto) {
     
-    console.log(user)
-    this.users.createNewUser(user);
-    return 'new user created';
-  }
+  //   console.log(user)
+  //   this.users.createNewUser(user);
+  //   return 'new user created';
+  // }
 
   @Delete(':id')
   deleteUser(@Param('id', ParseIntPipe) id:number){

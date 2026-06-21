@@ -21,9 +21,9 @@ export class TweetController {
   @Get(':userId')
   public getTweets(
     @Param('userId', ParseIntPipe) userId: number,
-    @Query() pagintionQueryDto: PaginationQueryDto,
+    @Query() pagintionQueryDto: PaginationQueryDto, //getTweetQueryDto
   ) {
-    console.log(pagintionQueryDto)
+    console.log(pagintionQueryDto) //getTweetQueryDto
     return this.tweetService.getTweets(userId, pagintionQueryDto);
   }
   @Post()
