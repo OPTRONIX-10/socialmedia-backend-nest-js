@@ -9,42 +9,48 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dtos/create-user.dtos';
 import { ConfigService } from '@nestjs/config';
-
+import { AuthorizeGuard } from 'src/auth/guards/authorize.guard';
 
 //http://localhost:3000/users
 @Controller('users')
+// @UseGuards(AuthorizeGuard)
 export class UsersController {
-  constructor(private users: UsersService,
-    private readonly configService : ConfigService
-  ){}
+  constructor(
+    private users: UsersService,
+    private readonly configService: ConfigService,
+  ) {}
+
   @Get()
   getUsers(
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('page', new DefaultValuePipe(3), ParseIntPipe) page: number,
   ) {
-    const environment = this.configService.get('ENV_MODE')
-    console.log(environment)
+    const environment = this.configService.get('ENV_MODE');
+    console.log(environment);
     return this.users.getallUsers();
   }
 
-
   // @Post()
   // postUsers(@Body() user: CreateUserDto) {
-    
+
   //   console.log(user)
   //   this.users.createNewUser(user);
   //   return 'new user created';
   // }
 
-  @Delete(':id')
-  deleteUser(@Param('id', ParseIntPipe) id:number){
-    this.users.deleteUser(id)
+  @Get(':id')
+  async getUserById(@Param('id') id: number) {
+    return await this.users.findUserById(id);
   }
 
- 
+  @Delete(':id')
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
+    this.users.deleteUser(id);
+  }
 }
