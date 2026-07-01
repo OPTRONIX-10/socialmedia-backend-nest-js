@@ -3,21 +3,27 @@ import { AuthService } from './auth.service';
 import { CreateUserDto } from 'src/users/dtos/create-user.dtos';
 import { LoginDto } from './dto/login.dto';
 import { AllowAnonymous } from './decorators/allow-anonymous.decorator';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService){}
     @AllowAnonymous()
-    @Post(':login')
+    @Post('login')
     @HttpCode(HttpStatus.OK)
     async login(@Body() loginDto: LoginDto){
         return await this.authService.login(loginDto)
     }
 
-    @Post(':signup')
+    @Post('signup')
     @AllowAnonymous()
     async signUp(@Body() createUserDto: CreateUserDto){
         return await this.authService.signUp(createUserDto)
     }
 
+    @Post('refresh-token')
+    @AllowAnonymous()
+    async getRefreshToken(@Body() refreshTokenDto:RefreshTokenDto){
+        return this.authService.getRefreshToken(refreshTokenDto)
+    }   
 }

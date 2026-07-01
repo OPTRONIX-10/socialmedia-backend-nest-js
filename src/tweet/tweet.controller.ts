@@ -28,9 +28,9 @@ export class TweetController {
     return this.tweetService.getTweets(userId, pagintionQueryDto);
   }
   @Post()
-  createTweet(@Body() tweet: CreateTweetDto, @activeUserDecrotor('email') user) {
+  createTweet(@Body() tweet: CreateTweetDto, @activeUserDecrotor() user) {
     console.log(user)
-    //return this.tweetService.createTweet(tweet);
+    return this.tweetService.createTweet(tweet,user);
   }
 
   @Patch()

@@ -8,6 +8,7 @@ import { HashtagService } from 'src/hashtag/hashtag.service';
 import { UpdateTweetDto } from './dtos/update-tweet.dto';
 import { PaginationQueryDto } from 'src/common/pagination/dtos/pagination-query.dto';
 import { PaginationProvider } from 'src/common/pagination/pagination.provider';
+import { ActiveUserType } from 'src/auth/interfaces/active-user-type.interfaces';
 
 @Injectable()
 export class TweetService {
@@ -32,16 +33,16 @@ export class TweetService {
     );
   }
 
-  async createTweet(createTweetDto: CreateTweetDto) {
-    const user = await this.userService.findUserById(createTweetDto.userId);
+  async createTweet(createTweetDto: CreateTweetDto, activeUser: ActiveUserType) {
+    const user = await this.userService.findUserById(activeUser.sub);
 
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    const hashtags = await this.hashtagService.findHashtags(
+    const hashtags = createTweetDto.hashtags?  await this.hashtagService.findHashtags(
       createTweetDto.hashtags!,
-    );
+    ):[]
 
     const tweet = this.tweetRepo.create({
       ...createTweetDto,
